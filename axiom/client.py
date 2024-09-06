@@ -267,6 +267,18 @@ class Client:  # pylint: disable=R0903
         result.savedQueryID = query_id
         return result
 
+    def query_json(self, apl: str, opts: Optional[AplOptions] = None) -> str:
+        """Executes the given apl query on the dataset identified by its id."""
+        path = "/v1/datasets/_apl"
+        payload = ujson.dumps(
+            self._prepare_apl_payload(apl, opts),
+            default=Util.handle_json_serialization,
+        )
+        self.logger.debug("sending query %s" % payload)
+        params = self._prepare_apl_options(opts)
+        res = self.session.post(path, data=payload, params=params)
+        return res.json()
+
     def _prepare_query_options(self, opts: QueryOptions) -> Dict[str, Any]:
         """returns the query options as a Dict, handles any renaming for key fields."""
         if opts is None:
